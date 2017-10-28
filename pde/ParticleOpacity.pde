@@ -67,6 +67,23 @@ class ParticleOpacity {
         lastY = this.y = y;
     }
 
+    ParticleOpacity( float x, float y, ParticleOpacityParams params ) {
+        this(
+            x,
+            y,
+            params.angle,
+            params.angleWidth,
+            params.maxOpacity,
+            params.lifeLow,
+            params.lifeHigh,
+            params.directionChangeMin,
+            params.directionChangeMax,
+            params.probabilidadAncho,
+            params.penalizacionSalto,
+            params.probabilidadPenalizacionSalto
+        )
+    }
+
     void reset() {
         currentColor = palette.getColor();
         //  currentColor = color(255,0,0);
@@ -98,8 +115,14 @@ class ParticleOpacity {
         );
 
         canvas.strokeWeight(ancho);
-        canvas.line(lastX,lastY,x,y);
-  }
+
+        canvas.beginShape();
+            canvas.vertex(lastX,lastY);
+            canvas.vertex(x,y);
+        canvas.endShape();
+
+        // canvas.line(lastX,lastY,x,y);
+    }
 
   // float sigmoid(int t, int minValue) {
   //   //   float sigmoidValue = 1 / ( 1 + exp( -t ) );

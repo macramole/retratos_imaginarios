@@ -35,8 +35,107 @@ int qtyLayers = 0;
 boolean fadeLayer = false;
 
 final int RETRATOS_CANT = 7;
+
 PImage[] retratos;
 int retratoCurrent = -1;
+
+final int DEBUG_SHOW_ONLY = -1; //-1 for no debugging
+
+PImage border;
+
+ParticleOpacityParams[] particleOpacityParams = {
+    // 1 //
+    new ParticleOpacityParams(
+        0, // float angle,
+        2 * PI, // float angleWidth,
+        50, // int maxOpacity,
+        600, // int lifeLow,
+        600, // int lifeHigh,
+        10, // int directionChangeMin,
+        10, // int directionChangeMax,
+        0.05, // float probabilidadAncho,
+        0.6, // float penalizacionSalto,
+        0.5 // float probabilidadPenalizacionSalto
+    ),
+    // 2 //
+    new ParticleOpacityParams(
+        0, // float angle,
+        2 * PI, // float angleWidth,
+        50, // int maxOpacity,
+        200, // int lifeLow,
+        800, // int lifeHigh,
+        1, // int directionChangeMin,
+        1, // int directionChangeMax,
+        0.01, // float probabilidadAncho,
+        0.9, // float penalizacionSalto,
+        0.5 // float probabilidadPenalizacionSalto
+    ),
+    // 3 //
+    new ParticleOpacityParams(
+        0, // float angle,
+        2 * PI, // float angleWidth,
+        50, // int maxOpacity,
+        600, // int lifeLow,
+        600, // int lifeHigh,
+        10, // int directionChangeMin,
+        10, // int directionChangeMax,
+        0.05, // float probabilidadAncho,
+        0.6, // float penalizacionSalto,
+        0.5 // float probabilidadPenalizacionSalto
+    ),
+    // 4 //
+    new ParticleOpacityParams(
+        0, // float angle,
+        2 * PI, // float angleWidth,
+        50, // int maxOpacity,
+        600, // int lifeLow,
+        600, // int lifeHigh,
+        10, // int directionChangeMin,
+        10, // int directionChangeMax,
+        0.05, // float probabilidadAncho,
+        0.6, // float penalizacionSalto,
+        0.5 // float probabilidadPenalizacionSalto
+    ),
+    // 5 //
+    new ParticleOpacityParams(
+        0, // float angle,
+        0, // float angleWidth,
+        50, // int maxOpacity,
+        0, // int lifeLow,
+        800, // int lifeHigh,
+        10, // int directionChangeMin,
+        10, // int directionChangeMax,
+        0.02, // float probabilidadAncho,
+        0.88, // float penalizacionSalto,
+        0.5 // float probabilidadPenalizacionSalto
+    ),
+    // 6 //
+    new ParticleOpacityParams(
+        0, // float angle,
+        2 * PI, // float angleWidth,
+        50, // int maxOpacity,
+        600, // int lifeLow,
+        600, // int lifeHigh,
+        10, // int directionChangeMin,
+        10, // int directionChangeMax,
+        0.05, // float probabilidadAncho,
+        0.6, // float penalizacionSalto,
+        0.5 // float probabilidadPenalizacionSalto
+    ),
+    // 7 //
+    new ParticleOpacityParams(
+        0, // float angle,
+        2 * PI, // float angleWidth,
+        50, // int maxOpacity,
+        600, // int lifeLow,
+        600, // int lifeHigh,
+        10, // int directionChangeMin,
+        10, // int directionChangeMax,
+        0.05, // float probabilidadAncho,
+        0.6, // float penalizacionSalto,
+        0.5 // float probabilidadPenalizacionSalto
+    )
+};
 
 void setup() {
   size(800,800);
@@ -44,16 +143,15 @@ void setup() {
   //background( palette[ floor(random(0, palette.length)) ] );
 
   // noiseDetail(1);
-  // img = loadImage("ninio2.png");
-  // img = loadImage("data/images/2.jpg");
-  // img = loadImage("ciudad_edit.jpg");
   retratos = new PImage[RETRATOS_CANT];
   for ( int i = 1 ; i <= RETRATOS_CANT ; i++ ) {
       retratos[i-1] = loadImage("data/images/" + i + ".jpg");
   }
 
+  border = loadImage("data/border.png");
+
   // particles = new ArrayList();
-  canvas = createGraphics(width, height, P2D);
+  canvas = createGraphics(width, height);
 
   particles = new ParticleSystem(canvas);
   palette = new Palette();
@@ -67,7 +165,7 @@ void setup() {
   layersOpacity = new int[RETRATOS_CANT];
 
   reset();
-  // smooth(10);
+  noSmooth();
   startNextPortrait();
   // addNewParticle();
   background(bgColor);
@@ -85,12 +183,13 @@ void draw() {
     image(canvas, 0, 0);
   }
 
-  drawImage();
+  // drawImage();
   // drawNoise();
 
   drawLayers();
   checkLayers();
 
+  drawBorder();
   // gui.draw();
 }
 
@@ -110,6 +209,10 @@ void loadPalette() {
     // palette.addColor( color(79,36,63) );
     palette.addColor( color(115,56,94,1) );
     palette.addColor( color(242,76,61,2) );
+}
+
+void drawBorder() {
+    image(border,0,0);
 }
 
 void drawImage() {
@@ -142,28 +245,9 @@ void addParticless() {
 }
 
 void addNewParticle(float x, float y) {
-    // println(str(x) + " " + str(y));
-    // println(x);
-    // println(y);
-
-    ParticleOpacity p = new ParticleOpacity(
-            x,
-            y,
-            -currentAngle,
-            currentAngleWidth,
-            maxOpacity,
-            lifeMin,
-            lifeMin,
-            // lifeMax,
-            directionChangeMin,
-            directionChangeMin,
-            // directionChangeMax,
-            probabilidadAncho,
-            penalizacionSalto,
-            probabilidadPenalizacionSalto);
-
+    ParticleOpacity p = new ParticleOpacity( x, y, particleOpacityParams[retratoCurrent] );
     particles.add( p );
-    // particles.add( new ParticleColoreador(x, y) );
+
     needToCreateLayer = true;
 }
 
@@ -193,9 +277,24 @@ void lessOpacity(PImage layer, int cuanto) { //processing.js fix
     layer.updatePixels();
 }
 void startNextPortrait() {
-    retratoCurrent++;
-    img = retratos[retratoCurrent];
-    addParticless();
+
+    // retratoCurrent = 0; //debugging
+    if ( DEBUG_SHOW_ONLY > -1 ) {
+        if ( retratoCurrent != DEBUG_SHOW_ONLY ) {
+            retratoCurrent = DEBUG_SHOW_ONLY;
+        } else {
+            retratoCurrent = RETRATOS_CANT;
+        }
+    } else {
+        retratoCurrent++;
+    }
+
+    if ( retratoCurrent < RETRATOS_CANT ) {
+        img = retratos[retratoCurrent];
+        addParticless();
+        // RETRATOS_CANT--; //debugging
+    }
+
 }
 void checkLayers() {
     if ( allParticlesDead && needToCreateLayer ) {
@@ -206,11 +305,11 @@ void checkLayers() {
         layersOpacity[qtyLayers] = 255;
         qtyLayers++;
         // gui.addLayer();
-        if ( retratoCurrent + 1 < RETRATOS_CANT ) {
+        if ( retratoCurrent < RETRATOS_CANT ) {
             startNextPortrait();
         }
-        fadeLayer = true;
     }
+    fadeLayer = true;
     if ( fadeLayer ) {
         if ( layersOpacity[qtyLayers-1] > 0 ) {
             layersOpacity[qtyLayers-1] -= 1;
@@ -241,19 +340,19 @@ void mouseWheel(MouseEvent event) {
     // gui.onScroll(event);
 }
 
-void keyTyped() {
-  switch(key) {
-     case ' ':
-       paused = !paused;
-       break;
-     case 'r':
-       reset();
-       break;
-     case 'v':
-        // gui.toggleVisible();
-        break;
-  }
-}
+// void keyTyped() {
+//   switch(key) {
+//      case ' ':
+//        paused = !paused;
+//        break;
+//      case 'r':
+//        reset();
+//        break;
+//      case 'v':
+//         // gui.toggleVisible();
+//         break;
+//   }
+// }
 
 void mouseClicked() {
     // gui.onClick();
